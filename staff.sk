@@ -53,6 +53,7 @@ on skript load:
 	set {minutes} to 0
 	set {hours} to 0
 	clear {startedtimer}
+	delete {schat}
 #
 #  КОМАНДЫ
 #
