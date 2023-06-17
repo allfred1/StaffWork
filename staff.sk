@@ -138,7 +138,7 @@ command /report [<player>] [<text>]:
 
 on chat:
     if {schat} is set:
-        set the chat format to "&c%player's display name%&f: &7%message%"
+        set the chat format to "&c%player's display name%&f: &7%message%" # Замените на свой формат чата 
 
 
 
