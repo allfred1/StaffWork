@@ -1,0 +1,183 @@
+#
+# ░█████╗░██╗░░░░░██████╗░██╗██████╗░███████╗██████╗░███████╗███████╗██╗░░██╗░█████╗░
+# ██╔══██╗██║░░░░░██╔══██╗██║██╔══██╗██╔════╝██╔══██╗██╔════╝╚════██║██║░██╔╝██╔══██╗
+# ██║░░██║██║░░░░░██║░░██║██║██████╦╝█████╗░░██████╔╝█████╗░░░░███╔═╝█████═╝░██║░░██║
+# ██║░░██║██║░░░░░██║░░██║██║██╔══██╗██╔══╝░░██╔══██╗██╔══╝░░██╔══╝░░██╔═██╗░██║░░██║
+# ╚█████╔╝███████╗██████╔╝██║██████╦╝███████╗██║░░██║███████╗███████╗██║░╚██╗╚█████╔╝
+# ░╚════╝░╚══════╝╚═════╝░╚═╝╚═════╝░╚══════╝╚═╝░░╚═╝╚══════╝╚══════╝╚═╝░░╚═╝░╚════╝░
+#
+#   Если у вас есть идеи для этого скрипта, напишите мне пожалуйста
+#
+# -} https://vk.com/oldiberezko
+# -} https://t.me/berezko
+# -} Berezko#3301
+# MTExNTg5MTU0NjYxMzYxNjY5Mw.G8QZTP.kLiQ8Y8lSuOHiApuxy4AIZ776QAvcC0c672r6A
+options:
+    verison: 0.1
+    prefix: §6§lBZ§0§l|§f
+    fail: §c§lНекорректное использование команды, попробуйте /shelp
+    noprm: §c§lУ вас нет разрешения на выполнение этой команды. Если вы считаете, что это ошибка, обратитесь к создателю скрипта https://vk.com/oldiberezko 
+    stafflog: 1115210329195032646  # Чат куда будут отправляться отчёты о работе модератора
+    reportlog: 1115210329195032647 # Чат куда будут отправляться жалобы
+    discordbottoken: MTExNTg5MTU0NjYxMzYxNjY5Mw.G8QZTP.kLiQ8Y8lSuOHiApuxy4AIZ776QAvcC0c672r6A
+    schat: false
+    type: TEXT
+
+
+define new bot named "KaverCraft":
+    token: "{@discordbottoken}"
+    intents: default intents 
+    policy: all
+    auto reconnect: true
+    compression: none
+    on ready:
+        send "DiscordAPI Loaded" to console
+        set the presence of the bot named "KaverCraft" to streaming "things" with url "stream.url"
+    on guild ready:
+        send "DiscordBot Ready" to console
+        set the presence of the bot named "KaverCraft" to streaming "things" with url "stream.url"
+
+
+variables:
+    {sf::%player%} = false
+    {friz::%player%} = false
+
+on join:
+    if player has permission "OP":
+        send ""
+        send " {@prefix} Добро пожаловать"
+        send " {@prefix} Для получения справки напишите /shelp"
+        send ""
+on skript load:
+	set {seconds} to 0
+	set {minutes} to 0
+	set {hours} to 0
+	clear {startedtimer}
+#
+#  КОМАНДЫ
+#
+command /shelp:
+    permission: OP
+    permission message: {@noprm}
+    trigger:
+        send "§6"
+        send "§6/sf §7ВАШ ДС &b- &7НИК§0- §fЗаморозь игрока если он покинет игру то, будет автоматически забанен" 
+        send "§6/s start §0- §fНачать свой день" 
+        send "§6/s stop §0- §fЗакончить свой день" 
+        send "&6/report &7ИГРОК &7ПРИЧИНА &0- &fНаписать жалобу на игра"
+        send "§6"
+        
+command /s [<text>]:
+    permission: OP
+    permission message: {@noprm}
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix} {@fail}"
+        if arg-1 is "start":
+            set {seconds} to 0
+            set {minutes} to 0
+            set {hours} to 0
+            delete {startedtimer}
+            delete {paused}
+            set {startedtimer} to true
+            set {schat} to true
+            send title "&6Удачной работы" with subtitle "Чтобы остановить используйте stop"
+        if arg-1 is "stop":
+            if {startedtimer} is set:
+                send "{@prefix} &fВы работали в течении &a%{hours}%&fчасов &a%{minutes}%&fминут"
+                set {seconds} to 0
+                set {minutes} to 0
+                set {hours} to 0
+                delete {startedtimer}
+                delete {schat}
+            else:
+                send "{@prefix} &cВы не запускали таймер"
+
+
+command /report [<player>] [<text>]:
+    trigger:
+        if player-arg is not set:
+            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            stop
+        if arg-2 is not set:
+            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            stop
+        if arg-1 is not set:
+            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            stop
+        if player-arg is player:
+            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            stop
+        else:
+            loop all players:
+                if loop-player has permission "OP":
+                send "" to loop-player
+                send "" to loop-player
+                send "{@prefix} &fComplaint from a player %player%" to loop-player
+                send "&0-> &fNew complaint about a player %player-arg% " to loop-player
+                send "&0-> &fFor the reason of %arg-2%" to loop-player
+                send "" to loop-player
+                send "" to loop-player
+                make embed:
+                    set title of embed to "Жалоба"
+                    set author icon of embed to "https://media.discordapp.net/attachments/1115210329195032646/1119580866134413402/photo1686557434.jpeg?width=662&height=6621"
+                    set embed color of the embed to red
+                    add inline field named "От игрока" with value "%player%" to fields of embed
+                    add inline field named "На игрока" with value "%player-arg%" to fields of embed
+                    add inline field named "Причина" with value "%arg-2%" to fields of embed
+                    set footer of embed to "oldiberezko"
+                    set timestamp of embed to now
+                post last embed to text channel with id "{@reportlog}"
+
+
+#
+# ТРИГГЕРЫ 
+# 
+
+
+on chat:
+    if {schat} is set:
+        set the chat format to "&c%player's display name%&f: &7%message%"
+
+
+
+
+
+
+on quit:
+    if {startedtimer} is set:
+        send "{@prefix} &fModerator &a%player%f worked during the &a%{hours}%&fhours &a%{minutes}%&fminutes" to console
+        make embed:
+            set title of embed to "Отчёт о работе модератора"
+            set author of the embed to "%player%"
+            set author icon of embed to "https://media.discordapp.net/attachments/1115210329195032646/1119580866134413402/photo1686557434.jpeg?width=662&height=6621"
+            set embed color of the embed to orange
+            add inline field named "Часов" with value "%{hours}%" to fields of embed
+            add inline field named "Минут" with value "%{minutes}%" to fields of embed
+            add inline field named "Секунд" with value "%{seconds}%" to fields of embed
+            set footer of embed to "oldiberezko"
+            set timestamp of embed to now
+        post last embed to text channel with id "{@stafflog}"
+        set {seconds} to 0
+        set {minutes} to 0
+        set {hours} to 0
+        delete {startedtimer}
+    
+on quit:
+    delete {schat}
+
+on damage of player:
+  if attacker is not animal or mob:
+
+
+
+every 1 second:
+	loop all players:
+		if {startedtimer} is set:
+			add 1 to {seconds}
+			if {seconds} is higher or equal to 60:
+				add 1 to {minutes}
+				set {seconds} to 0
+			if {minutes} is higher or equal to 60:
+				add 1 to {hours}
+				set {minutes} to 0
