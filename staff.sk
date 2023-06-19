@@ -13,16 +13,22 @@
 # -} https://t.me/berezko
 # -} Berezko#3301
 # 
+#
 options:
     verison: 0.1
     prefix: §6§lBZ§0§l|§f
     fail: §c§lНекорректное использование команды, попробуйте /shelp
     noprm: §c§lУ вас нет разрешения на выполнение этой команды. Если вы считаете, что это ошибка, обратитесь к создателю скрипта https://vk.com/oldiberezko 
-    stafflog: 00000000  # Чат куда будут отправляться отчёты о работе модератора ID
-    reportlog: 00000000 # Чат куда будут отправляться жалобы ID 
-    discordbottoken: 00000000 # Здесь вставьте токен бота Discord  
+    stafflog: 000000000000  # Чат куда будут отправляться отчёты о работе модератора
+    reportlog: 000000000000 # Чат куда будут отправляться жалобы
+    discordbottoken: 000000000000
+    vvanish: false
     schat: false
+    sstitle: true
+    usenormal: &fИспользуйте правильно команду
     type: TEXT
+    tday: true
+    sschat: true
 
 
 define new bot named "KaverCraft":
@@ -33,15 +39,12 @@ define new bot named "KaverCraft":
     compression: none
     on ready:
         send "DiscordAPI Loaded" to console
-        set the presence of the bot named "KaverCraft" to streaming "things" with url "stream.url"
     on guild ready:
         send "DiscordBot Ready" to console
-        set the presence of the bot named "KaverCraft" to streaming "things" with url "stream.url"
 
 
 variables:
-    {sf::%player%} = false
-    {friz::%player%} = false
+    {checkorban::%player%} = false
 
 on join:
     if player has permission "OP":
@@ -54,7 +57,9 @@ on skript load:
 	set {minutes} to 0
 	set {hours} to 0
 	clear {startedtimer}
-	delete {schat}
+#
+#
+#
 #
 #  КОМАНДЫ
 #
@@ -83,7 +88,7 @@ command /s [<text>]:
             delete {paused}
             set {startedtimer} to true
             set {schat} to true
-            send title "&6Удачной работы" with subtitle "Чтобы остановить используйте stop"
+            send title "&6Удачной работы" with subtitle "Чтобы остановить, используйте stop"
         if arg-1 is "stop":
             if {startedtimer} is set:
                 send "{@prefix} &fВы работали в течении &a%{hours}%&fчасов &a%{minutes}%&fминут"
@@ -92,6 +97,17 @@ command /s [<text>]:
                 set {hours} to 0
                 delete {startedtimer}
                 delete {schat}
+                make embed:
+                    set title of embed to "Отчёт о работе модератора"
+                    set author of the embed to "%player%"
+                    set author icon of embed to "https://media.discordapp.net/attachments/1115210329195032646/1119580866134413402/photo1686557434.jpeg?width=662&height=6621"
+                    set embed color of the embed to orange
+                    add inline field named "Часов" with value "%{hours}%" to fields of embed
+                    add inline field named "Минут" with value "%{minutes}%" to fields of embed
+                    add inline field named "Секунд" with value "%{seconds}%" to fields of embed
+                    set footer of embed to "oldiberezko"
+                    set timestamp of embed to now
+                post last embed to text channel with id "{@stafflog}"
             else:
                 send "{@prefix} &cВы не запускали таймер"
 
@@ -131,19 +147,137 @@ command /report [<player>] [<text>]:
                     set timestamp of embed to now
                 post last embed to text channel with id "{@reportlog}"
 
+command /sf [<text>] [<player>]:
+    permission: OP
+    permission message: {@noprm}
+    trigger:
+        if player-arg is not set:
+            send "{@prefix} {@usenormal}" to player
+            stop
+        if arg-2 is not set:
+            send "{@prefix}{@usenormal}" to player
+            stop
+        if arg-1 is not set:
+            send "{@prefix} {@usenormal}" to player
+            stop
+        if player-arg is player:
+            send "{@prefix} {@usenormal}" to player
+            stop
+        else: 
+            send title "&6%arg-1%" with subtitle "Напишите модератору в DS или вы будете забанены" to player-arg for 99999  seconds
+            set player-arg's walk speed to 0
+            set {checkorban::%player-arg%} to true
+            set {sstitle} to false
+            apply potion of mining fatigue of tier 255 to player-arg for 99999 seconds
+            
+on join:
+    if {sstitle} is false:
+        send title "&6Вы освобождены" with subtitle "&fУдачной игры" to player for 3 seconds
+        reset walk speed of player
+        execute console command "effect clear %player%"
+        set {sstitle} to true
 
-#
+
+command /unsf [<player>]:
+    permission: OP
+    permission message: {@noprm}
+    trigger:
+        send title "&6Вы освобождены" with subtitle "&fУдачной игры" to player-arg for 3 seconds
+        reset walk speed of player-arg
+        set {checkorban::%player-arg%} to false
+        execute console command "effect clear %player-arg%"
+command /unban [<offline player>]:
+    permission: OP
+    permission message: {@noprm}
+    trigger:
+        set {checkorban::%arg-1%} to false
+        unban arg-1
+        send "{@prefix} %arg-1% &6разбанен"
+
+command /staffchat [<text>]:
+    permission: OP
+    permission message: {@noprm}
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix} &fИспользуйте /staffchat &0- &6ON &fИли &cOFF " to player
+        if arg-1 is "on":
+            set {staffchat.%player%} to true
+            send "{@prefix} &fВключен стафф чат" to player
+        if arg-1 is "off":
+            set {staffchat.%player%} to false
+            send "{@prefix} &fОтключен стафф чат" to player
+# события
+on chat:
+    if {staffchat.%player%} is true:
+        cancel event
+        loop all players:
+            if loop-players has permission "OP":
+                send "&0&l[&1*&0&l]&7%player%: &7%message%" to loop-player
+
+command /sc [<text>]:
+	permission: op
+	trigger:
+		loop all players:
+			if loop-player has permission "OP":
+				send "&0&l[&1*&0&l]&7%player%: &7%arg-1%" to loop-player
+#  МЕНЮ
+# 
+# -} Использую метаданные если сервер резко отключиться могут возникнуть проблемы
+# -} Советую не трогать код здесь
+# 
+
+command /sfm:
+    permission: OP
+    permission message: {@noprm}
+    trigger:
+        set metadata tag "sfmm" of player to chest inventory with 3 rows named "            &0&lУправление"
+        set slot 10 of metadata tag "sfmm" of player to amethyst shard named "&6Получить палку" with lore "&fИспользуется для проверки на отдачу"
+        set slot 12 of metadata tag "sfmm" of player to turtle helmet named "&6Включить режим ваниша" with lore "&fВы пропадёте с радаров"
+        set slot 14 of metadata tag "sfmm" of player to writable book of knockback named "&6Начать рабочий день"
+        set slot 16 of metadata tag "sfmm" of player to paper named "&6Включить стафф-чат"
+        open (metadata tag "sfmm" of player) to player
+
+on inventory click:
+    if event-inventory = (metadata tag "sfmm" of player):
+        cancel event
+    if index of event-slot is 10:
+        give player amethyst shard of knockback 16 named "&6Откидка"
+        close player's inventory
+    if index of event-slot is 12:
+        execute player command "Vanish"
+        close player's inventory
+    if index of event-slot is 14:
+        if {tday} is true:
+            execute player command "s start"
+            set {tday} to false
+            close player's inventory    
+            stop
+    if index of event-slot is 14:
+        if {tday} is false:
+            execute player command "s stop"
+            set {tday} to true
+            close player's inventory
+            stop
+    if index of event-slot is 16:
+        if {sschat} is true:
+            execute player command "staffchat on"
+            set {sschat} to false
+            close player's inventory    
+            stop        
+    if index of event-slot is 16:
+        if {sschat} is false:
+            execute player command "staffchat off"
+            set {sschat} to true
+            close player's inventory    
+            stop          
+
+#   
 # ТРИГГЕРЫ 
 # 
 
-
 on chat:
     if {schat} is set:
-        set the chat format to "&c%player's display name%&f: &7%message%" # Замените на свой формат чата 
-
-
-
-
+        set the chat format to "&c%player's display name%&f: &7%message%"
 
 
 on quit:
@@ -164,15 +298,13 @@ on quit:
         set {minutes} to 0
         set {hours} to 0
         delete {startedtimer}
-    
+    if {checkorban::%player%} is true:
+        execute console command "ban %player% &f Вы были забанены потому что покинули проверку, если это произшло случайно то напишите нам в Discord"
+
 on quit:
     delete {schat}
-
-on damage of player:
-  if attacker is not animal or mob:
-
-
-
+    set {tday} to true
+    set {sschat} to true
 every 1 second:
 	loop all players:
 		if {startedtimer} is set:
