@@ -6,22 +6,34 @@
 # ╚█████╔╝███████╗██████╔╝██║██████╦╝███████╗██║░░██║███████╗███████╗██║░╚██╗╚█████╔╝
 # ░╚════╝░╚══════╝╚═════╝░╚═╝╚═════╝░╚══════╝╚═╝░░╚═╝╚══════╝╚══════╝╚═╝░░╚═╝░╚════╝░
 #
-#   Если у вас есть идеи для этого скрипта, напишите мне пожалуйста
-#   Или нашли баг тоже напишите мне
-#    
+# Для работы нужно Disky - Skript 
+#
+#  Если у вас есть идеи для этого скрипта, напишите мне пожалуйста
+#
+#  Спасибо этим ребятами за помощь - Toni300 - Jawady - PhoenixRising
+#  --> Список прав:
+# > bzsf.sfm - Права на доступ к панели управления
+# > bzsf.sc - Права на доступ к отправке одиночных сообщений в стаффчат
+# > bzsf.staffchat - Права для использования стаффчата
+# > bzsf.unban - Права на использования команды /unban 
+# > bzsf.sf - Права на использования команды для проверки и заморозки
+# > bzsf.report - Права на использование команды /report
+# > bzsf.sss - Права на использование основой команды скрипта /s start |-| /s stop
+# > bzsf.help - Права на использование команды на справку
+# > bzsf.seereports -Модераторы с этим правом могут получать жалобы от игроков
+# 
 # -} https://vk.com/oldiberezko
 # -} https://t.me/berezko
 # -} Berezko#3301
-# 
 #
 options:
     verison: 0.1
     prefix: §6§lBZ§0§l|§f
     fail: §c§lНекорректное использование команды, попробуйте /shelp
     noprm: §c§lУ вас нет разрешения на выполнение этой команды. Если вы считаете, что это ошибка, обратитесь к создателю скрипта https://vk.com/oldiberezko 
-    stafflog: 000000000000  # Чат куда будут отправляться отчёты о работе модератора
-    reportlog: 000000000000 # Чат куда будут отправляться жалобы
-    discordbottoken: 000000000000
+    stafflog: 000000000000000000  # Чат куда будут отправляться отчёты о работе модератора
+    reportlog: 000000000000000000 # Чат куда будут отправляться жалобы
+    discordbottoken: 000000000000000000000000000000000000000000000000000000 # Токент Discord бота
     vvanish: false
     schat: false
     sstitle: true
@@ -29,7 +41,7 @@ options:
     type: TEXT
     tday: true
     sschat: true
-
+    
 
 define new bot named "KaverCraft":
     token: "{@discordbottoken}"
@@ -64,18 +76,25 @@ on skript load:
 #  КОМАНДЫ
 #
 command /shelp:
-    permission: OP
+    permission: bzsf.help 
     permission message: {@noprm}
     trigger:
+        send " &0-----| {@prefix} &0|-----|"
         send "§6"
-        send "§6/sf §7ВАШ ДС &b- &7НИК§0- §fЗаморозь игрока если он покинет игру то, будет автоматически забанен" 
+        send "§6/sf §7ВАШ ДС &b- &7НИК§0- §fЗаморозь игрока если он покинет игру то, будет автоматически забанен"
+        send "&fКогда вы напишите свой дс и ник игрока то он будет заморожен и если выйдет из игры, будет забанен"
+        send "" 
         send "§6/s start §0- §fНачать свой день" 
         send "§6/s stop §0- §fЗакончить свой день" 
         send "&6/report &7ИГРОК &7ПРИЧИНА &0- &fНаписать жалобу на игра"
+        send "&6/unban &7ИГРОК &0- &fРазблокировать игрока"
+        send "&6/sc &7ТЕКСТ &0- &fОтправить одно сообщение в стаффчат"
+        send "&6/staffchat &aON &b- &cOFF &0- &fВключить или отключить стаффчат"
+        send "&6/sfm &0- &fОткрыть меню управления"
         send "§6"
         
 command /s [<text>]:
-    permission: OP
+    permission: bzsf.sss
     permission message: {@noprm}
     trigger:
         if arg-1 is not set:
@@ -113,27 +132,29 @@ command /s [<text>]:
 
 
 command /report [<player>] [<text>]:
+    description: Отправить жалобу на игрока.
+    permission: bzsf.report
     trigger:
         if player-arg is not set:
-            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         if arg-2 is not set:
-            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         if arg-1 is not set:
-            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         if player-arg is player:
-            send "{@prefix} &fUse the command: &6/report &7PLAYER &7REASON" to player
+            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         else:
             loop all players:
-                if loop-player has permission "OP":
+                if loop-player has permission "bzsf.seereports":
                 send "" to loop-player
                 send "" to loop-player
-                send "{@prefix} &fComplaint from a player %player%" to loop-player
-                send "&0-> &fNew complaint about a player %player-arg% " to loop-player
-                send "&0-> &fFor the reason of %arg-2%" to loop-player
+                send "{@prefix} &fЖалоба от игрока %player%" to loop-player
+                send "&0-> &fНовая жалоба на игрока %player-arg% " to loop-player
+                send "&0-> &fПо причине %arg-2%" to loop-player
                 send "" to loop-player
                 send "" to loop-player
                 make embed:
@@ -148,7 +169,7 @@ command /report [<player>] [<text>]:
                 post last embed to text channel with id "{@reportlog}"
 
 command /sf [<text>] [<player>]:
-    permission: OP
+    permission: bzsf.sf
     permission message: {@noprm}
     trigger:
         if player-arg is not set:
@@ -187,7 +208,7 @@ command /unsf [<player>]:
         set {checkorban::%player-arg%} to false
         execute console command "effect clear %player-arg%"
 command /unban [<offline player>]:
-    permission: OP
+    permission: bzsf.unban 
     permission message: {@noprm}
     trigger:
         set {checkorban::%arg-1%} to false
@@ -195,7 +216,7 @@ command /unban [<offline player>]:
         send "{@prefix} %arg-1% &6разбанен"
 
 command /staffchat [<text>]:
-    permission: OP
+    permission: bzsf.staffchat
     permission message: {@noprm}
     trigger:
         if arg-1 is not set:
@@ -211,15 +232,20 @@ on chat:
     if {staffchat.%player%} is true:
         cancel event
         loop all players:
-            if loop-players has permission "OP":
+            if loop-players has permission "bzsf.staffchat":
                 send "&0&l[&1*&0&l]&7%player%: &7%message%" to loop-player
 
 command /sc [<text>]:
-	permission: op
-	trigger:
-		loop all players:
-			if loop-player has permission "OP":
-				send "&0&l[&1*&0&l]&7%player%: &7%arg-1%" to loop-player
+    description: "Отправка сообщений в стафф чат"
+    permission: bzsf.sc
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix} &fИспользуйте команду &6/sc &7текст"
+            stop
+        else:
+        loop all players:
+            if loop-player has permission "OP":
+                send "&0&l[&1*&0&l]&7%player%: &7%arg-1%" to loop-player
 #  МЕНЮ
 # 
 # -} Использую метаданные если сервер резко отключиться могут возникнуть проблемы
@@ -227,7 +253,7 @@ command /sc [<text>]:
 # 
 
 command /sfm:
-    permission: OP
+    permission: bzsf.sfm
     permission message: {@noprm}
     trigger:
         set metadata tag "sfmm" of player to chest inventory with 3 rows named "            &0&lУправление"
