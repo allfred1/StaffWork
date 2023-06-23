@@ -9,8 +9,10 @@
 # Для работы нужно Disky - Skript 
 #
 #  Если у вас есть идеи для этого скрипта, напишите мне пожалуйста
+#  --> FAQ
+# > Ошибка "Cant understand this event 'define new bot named "KaverCraft" вам нужно установить DiSky(https://disky.me/) 
+# > и установить токен бота в discordbottoken
 #
-#  Спасибо этим ребятами за помощь - Toni300 - Jawady - PhoenixRising
 #  --> Список прав:
 # > bzsf.sfm - Права на доступ к панели управления
 # > bzsf.sc - Права на доступ к отправке одиночных сообщений в стаффчат
@@ -21,19 +23,20 @@
 # > bzsf.sss - Права на использование основой команды скрипта /s start |-| /s stop
 # > bzsf.help - Права на использование команды на справку
 # > bzsf.seereports -Модераторы с этим правом могут получать жалобы от игроков
+# > bzsf.invsee - Права на использование команды для просмотра инвентаря
+# > bzsf.vanish - Права на использование команды /v - /vanish для режима невидимки
 # 
 # -} https://vk.com/oldiberezko
 # -} https://t.me/berezko
-# -} Berezko#3301
+# DS-} oldiberezko
 #
 options:
     verison: 0.1
     prefix: §6§lBZ§0§l|§f
-    fail: §c§lНекорректное использование команды, попробуйте /shelp
-    noprm: §c§lУ вас нет разрешения на выполнение этой команды. Если вы считаете, что это ошибка, обратитесь к создателю скрипта https://vk.com/oldiberezko 
-    stafflog: 000000000000000000  # Чат куда будут отправляться отчёты о работе модератора
-    reportlog: 000000000000000000 # Чат куда будут отправляться жалобы
-    discordbottoken: 000000000000000000000000000000000000000000000000000000 # Токент Discord бота
+    noprm: §c§lНету прав на использование команды
+    stafflog: 00000000000000000000  # Чат куда будут отправляться отчёты о работе модератора
+    reportlog: 00000000000000000000 # Чат куда будут отправляться жалобы
+    discordbottoken: 00000000000000000000  # Токент Discord бота
     vvanish: false
     schat: false
     sstitle: true
@@ -57,6 +60,7 @@ define new bot named "KaverCraft":
 
 variables:
     {checkorban::%player%} = false
+    {vanishh::%player%} = false
 
 on join:
     if player has permission "OP":
@@ -64,11 +68,14 @@ on join:
         send " {@prefix} Добро пожаловать"
         send " {@prefix} Для получения справки напишите /shelp"
         send ""
+
+
 on skript load:
 	set {seconds} to 0
 	set {minutes} to 0
 	set {hours} to 0
 	clear {startedtimer}
+	clear {vanishh::%player%}
 #
 #
 #
@@ -91,6 +98,8 @@ command /shelp:
         send "&6/sc &7ТЕКСТ &0- &fОтправить одно сообщение в стаффчат"
         send "&6/staffchat &aON &b- &cOFF &0- &fВключить или отключить стаффчат"
         send "&6/sfm &0- &fОткрыть меню управления"
+        send "&6/vanish &0- &fРежим невидимки"
+        send "&6/inv &7ИГРОК &0- &fпросмотр чужого инвентаря"
         send "§6"
         
 command /s [<text>]:
@@ -98,7 +107,7 @@ command /s [<text>]:
     permission message: {@noprm}
     trigger:
         if arg-1 is not set:
-            send "{@prefix} {@fail}"
+            send "{@prefix} &fНекорректное использование команды, используйте: &aSTART &0- &cSTOP"
         if arg-1 is "start":
             set {seconds} to 0
             set {minutes} to 0
@@ -131,21 +140,21 @@ command /s [<text>]:
                 send "{@prefix} &cВы не запускали таймер"
 
 
-command /report [<player>] [<text>]:
+command /report [<player>] [<text>]: # Раньше был прикол в том что можно было отправить на себя жалобу и обойти зависимости 
     description: Отправить жалобу на игрока.
     permission: bzsf.report
     trigger:
         if player-arg is not set:
-            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
+            send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         if arg-2 is not set:
-            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
+            send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         if arg-1 is not set:
-            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
+            send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         if player-arg is player:
-            send "{@prefix} &fИспользуйте команду: &6/report &7ИГРОК &7ПРИЧИНА" to player
+            send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         else:
             loop all players:
@@ -173,7 +182,7 @@ command /sf [<text>] [<player>]:
     permission message: {@noprm}
     trigger:
         if player-arg is not set:
-            send "{@prefix} {@usenormal}" to player
+            send "{@prefix} &fИспользуйте " to player
             stop
         if arg-2 is not set:
             send "{@prefix}{@usenormal}" to player
@@ -203,17 +212,25 @@ command /unsf [<player>]:
     permission: OP
     permission message: {@noprm}
     trigger:
-        send title "&6Вы освобождены" with subtitle "&fУдачной игры" to player-arg for 3 seconds
-        reset walk speed of player-arg
-        set {checkorban::%player-arg%} to false
-        execute console command "effect clear %player-arg%"
+        if player-arg is not set:
+            send "{@prefix} &fНекорректное использование команды, используйте &6/unsf &7ИГРОК" to player
+            stop
+        else:
+            send title "&6Вы освобождены" with subtitle "&fУдачной игры" to player-arg for 3 seconds
+            reset walk speed of player-arg
+            set {checkorban::%player-arg%} to false
+            execute console command "effect clear %player-arg%"
 command /unban [<offline player>]:
     permission: bzsf.unban 
     permission message: {@noprm}
     trigger:
-        set {checkorban::%arg-1%} to false
-        unban arg-1
-        send "{@prefix} %arg-1% &6разбанен"
+        if arg-1 is not set:
+            send "{@prefix} &fНекорректное использование команды, используйте: &6/unban &7ИГРОК" to players
+            stop
+        else:
+            set {checkorban::%arg-1%} to false
+            unban arg-1
+            send "{@prefix} %arg-1% &6разбанен"
 
 command /staffchat [<text>]:
     permission: bzsf.staffchat
@@ -227,14 +244,18 @@ command /staffchat [<text>]:
         if arg-1 is "off":
             set {staffchat.%player%} to false
             send "{@prefix} &fОтключен стафф чат" to player
-# события
+#
+# ИВЕНТЫ
+#
 on chat:
     if {staffchat.%player%} is true:
         cancel event
         loop all players:
             if loop-players has permission "bzsf.staffchat":
                 send "&0&l[&1*&0&l]&7%player%: &7%message%" to loop-player
-
+#
+# КОМАНДЫ
+# 
 command /sc [<text>]:
     description: "Отправка сообщений в стафф чат"
     permission: bzsf.sc
@@ -244,8 +265,35 @@ command /sc [<text>]:
             stop
         else:
         loop all players:
-            if loop-player has permission "OP":
+            if loop-player has permission "bzsf.sc":
                 send "&0&l[&1*&0&l]&7%player%: &7%arg-1%" to loop-player
+
+command /vanish:
+    aliases: v
+    permission: bzsf.vanish
+    permission message: {@noprm}
+    executable by: player
+    trigger:
+        if {vanishh::%player%} is false:
+            set {vanishh::%player%} to true
+            hide the player from all players
+            send "{@prefix} &fВключена невидимка."
+            stop
+        if {vanishh::%player%} is true:
+            set {vanishh::%player%} to false
+            reveal the player from all players
+            send "{@prefix} &fОтключена невидимка."
+            stop
+
+command /inv [<player>]:
+    permission: bzsf.invsee
+    permission message: {@noprm}
+    trigger:
+        if player-arg is not set:
+            send "{@prefix} &fИспользуйте /inv &7ИГРОК"
+            stop
+        if player-arg is set:
+            open the player-arg's inventory for the player
 #  МЕНЮ
 # 
 # -} Использую метаданные если сервер резко отключиться могут возникнуть проблемы
@@ -298,12 +346,13 @@ on inventory click:
             stop          
 
 #   
-# ТРИГГЕРЫ 
+# ИВЕНТЫ 
 # 
 
 on chat:
     if {schat} is set:
         set the chat format to "&c%player's display name%&f: &7%message%"
+
 
 
 on quit:
@@ -327,17 +376,44 @@ on quit:
     if {checkorban::%player%} is true:
         execute console command "ban %player% &f Вы были забанены потому что покинули проверку, если это произшло случайно то напишите нам в Discord"
 
+
+on damage:
+    victim is a player
+    if {vanishh::%victim%} is true:
+        cancel event
+on drop:
+    if {vanishh::%player%} is true:
+        cancel event
+on pickup:
+    if {vanishh::%player%} is true:
+        cancel event
+on join:
+    loop all players:
+        if {vanishh::%player%} is true:
+            reveal the player from all players
+            hide the player from all players
+    if {vanishh::%player%} is true:
+        set join message to ""
+
+on quit:
+    if {vanishh::%player%} is true:
+        set quit message to ""
 on quit:
     delete {schat}
     set {tday} to true
     set {sschat} to true
 every 1 second:
-	loop all players:
-		if {startedtimer} is set:
-			add 1 to {seconds}
-			if {seconds} is higher or equal to 60:
-				add 1 to {minutes}
-				set {seconds} to 0
-			if {minutes} is higher or equal to 60:
-				add 1 to {hours}
-				set {minutes} to 0
+    loop all players:
+        if {startedtimer} is set:
+            add 1 to {seconds}
+            if {seconds} is higher or equal to 60:
+                add 1 to {minutes}
+                set {seconds} to 0
+            if {minutes} is higher or equal to 60:
+                add 1 to {hours}
+                set {minutes} to 0
+
+every second:
+    loop all players:
+        if {vanishh::%loop-players%} is true:
+            send action bar "&0[     &fВключена Невидимка&0     ]" to loop-player
