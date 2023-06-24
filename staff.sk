@@ -9,9 +9,6 @@
 # Для работы нужно Disky - Skript 
 #
 #  Если у вас есть идеи для этого скрипта, напишите мне пожалуйста
-#  --> FAQ
-# > Ошибка "Cant understand this event 'define new bot named "KaverCraft" вам нужно установить DiSky(https://disky.me/) 
-# > и установить токен бота в discordbottoken
 #
 #  --> Список прав:
 # > bzsf.sfm - Права на доступ к панели управления
@@ -25,18 +22,24 @@
 # > bzsf.seereports -Модераторы с этим правом могут получать жалобы от игроков
 # > bzsf.invsee - Права на использование команды для просмотра инвентаря
 # > bzsf.vanish - Права на использование команды /v - /vanish для режима невидимки
-# 
+# >- bzsf.techwork - Права для включения режима тех работ
+# >- bzsf.techjoin - Права для входа когда сервер находится в режиме тех работ.
+# > - bzsf.trash - Права на открытие меню мусорки
+# > - P.S в режиме невидимки модератор не может бросать вещи и очистить инвентарь
+#
+#
+#
 # -} https://vk.com/oldiberezko
 # -} https://t.me/berezko
 # DS-} oldiberezko
 #
 options:
-    verison: 0.1
+    verison: 0.3
     prefix: §6§lBZ§0§l|§f
     noprm: §c§lНету прав на использование команды
-    stafflog: 00000000000000000000  # Чат куда будут отправляться отчёты о работе модератора
+    stafflog: 00000000000000000000 # Чат куда будут отправляться отчёты о работе модератора
     reportlog: 00000000000000000000 # Чат куда будут отправляться жалобы
-    discordbottoken: 00000000000000000000  # Токент Discord бота
+    discordbottoken: 00000000000000000000 # Токент Discord бота
     vvanish: false
     schat: false
     sstitle: true
@@ -44,8 +47,7 @@ options:
     type: TEXT
     tday: true
     sschat: true
-    
-
+    modeworks: false
 define new bot named "KaverCraft":
     token: "{@discordbottoken}"
     intents: default intents 
@@ -61,15 +63,141 @@ define new bot named "KaverCraft":
 variables:
     {checkorban::%player%} = false
     {vanishh::%player%} = false
+#
+# ЗАЩИТА
+# Лучше всего всегда скрывать ваш список плагинов и всё, что с этим связано.
+# Если необходимо, можете его удалить, но я не рекомендую этого делать.
+# Также, здесь есть некоторые команды, которые могут привести к нежелательным последствиям. 
+#
 
+
+command /bukkit:pl:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /pl:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /plugins:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /bukkit:?:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /bukkit:version:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /bukkit:ver:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /bukkit:about:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /minecraft:help:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /help:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /about:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /ver:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /verison:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /server:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /alert:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /greload:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /glist:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /end:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /brush [<text>]:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /cs [<text>]:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /mycmd-runas [<text>]:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /packet [<text>]:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /execute [<text>]:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+command /sudo [<text>]:
+	executable by: players
+	permission message: {@noprm}
+	trigger:
+		stop
+
+#
+#
+#
 on join:
     if player has permission "OP":
         send ""
         send " {@prefix} Добро пожаловать"
         send " {@prefix} Для получения справки напишите /shelp"
         send ""
-
-
+    if {vanishh::%player%} is true:
+        set join message to ""
 on skript load:
 	set {seconds} to 0
 	set {minutes} to 0
@@ -77,16 +205,13 @@ on skript load:
 	clear {startedtimer}
 	clear {vanishh::%player%}
 #
-#
-#
-#
 #  КОМАНДЫ
 #
 command /shelp:
     permission: bzsf.help 
     permission message: {@noprm}
     trigger:
-        send " &0-----| {@prefix} &0|-----|"
+        send " &0-----| {@prefix} &0|------"
         send "§6"
         send "§6/sf §7ВАШ ДС &b- &7НИК§0- §fЗаморозь игрока если он покинет игру то, будет автоматически забанен"
         send "&fКогда вы напишите свой дс и ник игрока то он будет заморожен и если выйдет из игры, будет забанен"
@@ -100,6 +225,8 @@ command /shelp:
         send "&6/sfm &0- &fОткрыть меню управления"
         send "&6/vanish &0- &fРежим невидимки"
         send "&6/inv &7ИГРОК &0- &fпросмотр чужого инвентаря"
+        send "&6/trash &0- &fМусорка"
+        send "&6/techworks &aON &0- &COFF &fРежим тех работ"
         send "§6"
         
 command /s [<text>]:
@@ -120,11 +247,6 @@ command /s [<text>]:
         if arg-1 is "stop":
             if {startedtimer} is set:
                 send "{@prefix} &fВы работали в течении &a%{hours}%&fчасов &a%{minutes}%&fминут"
-                set {seconds} to 0
-                set {minutes} to 0
-                set {hours} to 0
-                delete {startedtimer}
-                delete {schat}
                 make embed:
                     set title of embed to "Отчёт о работе модератора"
                     set author of the embed to "%player%"
@@ -136,13 +258,21 @@ command /s [<text>]:
                     set footer of embed to "oldiberezko"
                     set timestamp of embed to now
                 post last embed to text channel with id "{@stafflog}"
+                set {seconds} to 0
+                set {minutes} to 0
+                set {hours} to 0
+                delete {startedtimer}
+                delete {schat}
             else:
                 send "{@prefix} &cВы не запускали таймер"
 
 
 command /report [<player>] [<text>]: # Раньше был прикол в том что можно было отправить на себя жалобу и обойти зависимости 
     description: Отправить жалобу на игрока.
+    cooldown: 30 seconds
+    cooldown message: {@prefix} &fЖалобы можно писать раз в 30 секунд!
     permission: bzsf.report
+    permission message: {@noprm}
     trigger:
         if player-arg is not set:
             send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
@@ -182,16 +312,16 @@ command /sf [<text>] [<player>]:
     permission message: {@noprm}
     trigger:
         if player-arg is not set:
-            send "{@prefix} &fИспользуйте " to player
+            send "{@prefix} &fИспользуйте &6/sf &7ДС &7ИГРОК " to player
             stop
         if arg-2 is not set:
-            send "{@prefix}{@usenormal}" to player
+            send "{@prefix} &fИспользуйте &6/sf &7ДС &7ИГРОК" to player
             stop
         if arg-1 is not set:
-            send "{@prefix} {@usenormal}" to player
+            send "{@prefix}  &fИспользуйте &6/sf &7ДС &7ИГРОК" to player
             stop
         if player-arg is player:
-            send "{@prefix} {@usenormal}" to player
+            send "{@prefix}  &fИспользуйте &6/sf &7ДС &7ИГРОК}" to player
             stop
         else: 
             send title "&6%arg-1%" with subtitle "Напишите модератору в DS или вы будете забанены" to player-arg for 99999  seconds
@@ -244,6 +374,37 @@ command /staffchat [<text>]:
         if arg-1 is "off":
             set {staffchat.%player%} to false
             send "{@prefix} &fОтключен стафф чат" to player
+
+
+command /techworks [<text>]:
+    permission: bzsf.techwork
+    permission message: {@noprm}
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix} &fДанной командой можно включить режим тех работ и все игроки"
+            send "{@prefix} &fбудут кикнутные кроме тех у кого есть право bzsf.techwork"
+            send "{@prefix} &fРежимы команды &aON &0- &cOFF"
+        if arg-1 is "on":
+            set {modeworks} to true
+            send "{@prefix} &fВключен режим тех работ"
+            loop all players:
+                if loop-players has permission "bzsf.techjoin":
+                    send "{@prefix} &fНа сервере включили режим тех работ."
+                else:
+                    kick the loop-player due to "ADADA"
+        if arg-1 is "off":
+            set {modeworks} to false
+            send "{@prefix} &f Отключен режим тех работ, игроки могут заходить"
+on connect:
+    if {modeworks} is true:
+        if player doesn't have permission "bzsf.techjoin":
+            kick player by reason of "&fСервер находится на &cтeх работах&f,зайдите позже"
+            stop
+        if player has permission "bzsf.techjoin":
+            wait 1 second
+            send " {@prefix} &fНа сервере включен режим тех работ" to player
+
+#             kick player by reason of "&fСервер находится на &cтeх работах&f,зайдите позже"
 #
 # ИВЕНТЫ
 #
@@ -294,6 +455,23 @@ command /inv [<player>]:
             stop
         if player-arg is set:
             open the player-arg's inventory for the player
+
+
+command /trash: # В режиме невидимки модератор не может бросать вещи и очистить инвентарь
+    permission: bzsf.trash
+    permission message: {@noprm}
+    trigger:
+        set {_gui} to a new chest inventory with 6 row with name "&0[             &fМУСОРКА&0               ]"
+        set slot 53 of {_gui} to flint and steel named "&fОчистить"
+        open {_gui} to player
+
+on inventory click:
+    if name of event-inventory is "&0[             &fМУСОРКА&0               ]":
+        if index of event-slot is 53:
+            close player's inventory
+            wait 1 tick
+            execute player command "trash"
+
 #  МЕНЮ
 # 
 # -} Использую метаданные если сервер резко отключиться могут возникнуть проблемы
@@ -355,6 +533,7 @@ on chat:
 
 
 
+
 on quit:
     if {startedtimer} is set:
         send "{@prefix} &fModerator &a%player%f worked during the &a%{hours}%&fhours &a%{minutes}%&fminutes" to console
@@ -375,8 +554,8 @@ on quit:
         delete {startedtimer}
     if {checkorban::%player%} is true:
         execute console command "ban %player% &f Вы были забанены потому что покинули проверку, если это произшло случайно то напишите нам в Discord"
-
-
+    if {vanishh::%player%} is true:
+        set quit message to ""
 on damage:
     victim is a player
     if {vanishh::%victim%} is true:
@@ -387,17 +566,7 @@ on drop:
 on pickup:
     if {vanishh::%player%} is true:
         cancel event
-on join:
-    loop all players:
-        if {vanishh::%player%} is true:
-            reveal the player from all players
-            hide the player from all players
-    if {vanishh::%player%} is true:
-        set join message to ""
 
-on quit:
-    if {vanishh::%player%} is true:
-        set quit message to ""
 on quit:
     delete {schat}
     set {tday} to true
@@ -412,8 +581,16 @@ every 1 second:
             if {minutes} is higher or equal to 60:
                 add 1 to {hours}
                 set {minutes} to 0
-
+        
 every second:
     loop all players:
         if {vanishh::%loop-players%} is true:
             send action bar "&0[     &fВключена Невидимка&0     ]" to loop-player
+            reveal the loop-player from all players
+            hide the loop-player from all players
+            hide loop-player from mobs
+
+
+on server list ping:
+    hide {vanishh::*} from the server list
+
