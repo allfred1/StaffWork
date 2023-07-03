@@ -36,7 +36,6 @@
 #  -=> Скрипт поддерживается на этих форумах автором, если вы скачали с другого форума 
 #  -=> скорей всего вам не ответят и не помогут или может оказаться что скрипт 
 #  -=> не работает. В случае если будут вирусы знайте автор не виноват
-#   -=> Если автор темы oldiberezko то всё в порядке.
 #  --= https://spigotmc.ru/resources/staffwork-skript-dlja-personala.1549/
 #  --= https://lightleak.pro/resources/staffwork-skript-dlja-personala-skript-dlja-plagina-skript.3186/
 #  
@@ -48,15 +47,14 @@
 options:
     verison: 0.4
     servername:  §6§lBZ§0§l|§f # ИМЯ СЕРВЕРА ИЛИ ПРЕФИКС СЕРВА
-    prefix: §6§lBZ§0§l|§f
+    prefix: §6§lBZ§0§l|§f 
     noprm: §c§lНету прав на использование команды
-    stafflog: 00000000000000000000   # Чат куда будут отправляться отчёты о работе модератора
-    reportlog: 00000000000000000000  # Чат куда будут отправляться жалобы
-    discordbottoken: 00000000000000000000     # Токент Discord бота
+    stafflog: 00000000000000000000 # Чат куда будут отправляться отчёты о работе модератора
+    reportlog: 00000000000000000000 # Чат куда будут отправляться жалобы
+    discordbottoken: 00000000000000000000    # Токент Discord бота
     vvanish: false
     schat: false
     sstitle: true
-    usenormal: &fИспользуйте правильно команду
     type: TEXT
     tday: true
     sschat: true
@@ -86,6 +84,23 @@ variables:
 #
 
 
+command /hack: # KEK
+    executable by: players
+    trigger:
+        send "{@prefix} Удачи ;3"
+        stop
+
+
+command /asw *: # малоли ктото еще использует ASW...
+    executable by: players
+    trigger:
+        stop
+
+command /skill:
+    executable by: players
+    trigger:
+        stop
+        
 command /bukkit:pl:
 	executable by: players
 	permission message: {@noprm}
@@ -243,6 +258,8 @@ command /shelp:
         send "&6/trash &0- &fМусорка"
         send "&6/techworks &aON &0- &COFF &fРежим тех работ"
         send "&6/fly &0- &fВключить/Выключить режим полёта"
+        send "&6/tp &0- &fТп к игроку"
+        send "&6/tpall &0- &fТпнуть всех к себе"
         send "&5В РАЗРАБОТКЕ: /mute &0- &fОтключить игроку чат"
         send "§6"
         
@@ -489,7 +506,7 @@ command /techworks [<text>]:
                 if loop-players has permission "bzsf.techjoin":
                     send "{@prefix} &fНа сервере включили режим тех работ."
                 else:
-                    kick the loop-player due to "ADADA"
+                    kick the loop-player due to "&6[ &fВключен режим тех работ&6 ]"
         if arg-1 is "off":
             set {modeworks} to false
             send "{@prefix} &f Отключен режим тех работ, игроки могут заходить"
@@ -627,8 +644,6 @@ on inventory click:
 on chat:
     if {schat} is set:
         set the chat format to "&c%player's display name%&f: &7%message%"
-
-
 
 
 on quit:
