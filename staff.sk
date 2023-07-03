@@ -6,6 +6,7 @@
 # ╚█████╔╝███████╗██████╔╝██║██████╦╝███████╗██║░░██║███████╗███████╗██║░╚██╗╚█████╔╝
 # ░╚════╝░╚══════╝╚═════╝░╚═╝╚═════╝░╚══════╝╚═╝░░╚═╝╚══════╝╚══════╝╚═╝░░╚═╝░╚════╝░
 #
+#
 # Для работы нужно Disky - Skript 
 #
 #  Если у вас есть идеи для этого скрипта, напишите мне пожалуйста
@@ -26,20 +27,31 @@
 # >- bzsf.techjoin - Права для входа когда сервер находится в режиме тех работ.
 # > - bzsf.trash - Права на открытие меню мусорки
 # > - P.S в режиме невидимки модератор не может бросать вещи и очистить инвентарь
+# >- bzsf.mute - Право на блокировку чата
+# >- bzsf.tp - Тп к игроку
+# -> bzsf.tpall - Тп всех игроков к себе
+# -> /sip - Узнать айпи игрока
+# -> bzsf.unsf - Разморозка
 #
-#
-#
+#  -=> Скрипт поддерживается на этих форумах автором, если вы скачали с другого форума 
+#  -=> скорей всего вам не ответят и не помогут или может оказаться что скрипт 
+#  -=> не работает. В случае если будут вирусы знайте автор не виноват
+#  --= https://spigotmc.ru/resources/staffwork-skript-dlja-personala.1549/
+#  --= https://lightleak.pro/resources/staffwork-skript-dlja-personala-skript-dlja-plagina-skript.3186/
+#  
+#  {-} Мои соц-сети и поддержка.
 # -} https://vk.com/oldiberezko
 # -} https://t.me/berezko
-# DS-} oldiberezko
+# {DS}-} oldiberezko
 #
 options:
-    verison: 0.3
+    verison: 0.4
+    servername:  §6§lBZ§0§l|§f # ИМЯ СЕРВЕРА ИЛИ ПРЕФИКС СЕРВА
     prefix: §6§lBZ§0§l|§f
     noprm: §c§lНету прав на использование команды
-    stafflog: 00000000000000000000 # Чат куда будут отправляться отчёты о работе модератора
-    reportlog: 00000000000000000000 # Чат куда будут отправляться жалобы
-    discordbottoken: 00000000000000000000 # Токент Discord бота
+    stafflog: 00000000000000000000   # Чат куда будут отправляться отчёты о работе модератора
+    reportlog: 00000000000000000000  # Чат куда будут отправляться жалобы
+    discordbottoken: 00000000000000000000     # Токент Discord бота
     vvanish: false
     schat: false
     sstitle: true
@@ -63,6 +75,8 @@ define new bot named "KaverCraft":
 variables:
     {checkorban::%player%} = false
     {vanishh::%player%} = false
+    {playermuted::%player%} = false
+    {fly::%player%} = false
 #
 # ЗАЩИТА
 # Лучше всего всегда скрывать ваш список плагинов и всё, что с этим связано.
@@ -194,7 +208,7 @@ on join:
     if player has permission "OP":
         send ""
         send " {@prefix} Добро пожаловать"
-        send " {@prefix} Для получения справки напишите /shelp"
+        send " {@prefix} Для получения справки напишите &6/shelp"
         send ""
     if {vanishh::%player%} is true:
         set join message to ""
@@ -227,6 +241,8 @@ command /shelp:
         send "&6/inv &7ИГРОК &0- &fпросмотр чужого инвентаря"
         send "&6/trash &0- &fМусорка"
         send "&6/techworks &aON &0- &COFF &fРежим тех работ"
+        send "&6/fly &0- &fВключить/Выключить режим полёта"
+        send "&5В РАЗРАБОТКЕ: /mute &0- &fОтключить игроку чат"
         send "§6"
         
 command /s [<text>]:
@@ -274,55 +290,43 @@ command /report [<player>] [<text>]: # Раньше был прикол в то�
     permission: bzsf.report
     permission message: {@noprm}
     trigger:
-        if player-arg is not set:
+        if player-arg or arg-1 or arg-2 is not set:
             send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
-            stop
-        if arg-2 is not set:
-            send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
-            stop
-        if arg-1 is not set:
-            send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
-            stop
-        if player-arg is player:
-            send "{@prefix} &fНекорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
+            stop  
+        if player-arg or arg-1 or arg-2 is player:
+            send "{@prefix} &fВы не можете писать жалобу на себя. Некорректное использование команды, используйте: &6/report &7ИГРОК &7ПРИЧИНА" to player
             stop
         else:
             loop all players:
                 if loop-player has permission "bzsf.seereports":
-                send "" to loop-player
-                send "" to loop-player
-                send "{@prefix} &fЖалоба от игрока %player%" to loop-player
-                send "&0-> &fНовая жалоба на игрока %player-arg% " to loop-player
-                send "&0-> &fПо причине %arg-2%" to loop-player
-                send "" to loop-player
-                send "" to loop-player
-                make embed:
-                    set title of embed to "Жалоба"
-                    set author icon of embed to "https://media.discordapp.net/attachments/1115210329195032646/1119580866134413402/photo1686557434.jpeg?width=662&height=6621"
-                    set embed color of the embed to red
-                    add inline field named "От игрока" with value "%player%" to fields of embed
-                    add inline field named "На игрока" with value "%player-arg%" to fields of embed
-                    add inline field named "Причина" with value "%arg-2%" to fields of embed
-                    set footer of embed to "oldiberezko"
-                    set timestamp of embed to now
-                post last embed to text channel with id "{@reportlog}"
+                    send "" to loop-player
+                    send "" to loop-player
+                    send "{@prefix} &fЖалоба от игрока &7%player%" to loop-player
+                    send "&0-> &fНовая жалоба на игрока &c%player-arg% " to loop-player
+                    send "&0-> &fПо причине &a%arg-2%&f" to loop-player
+                    send "" to loop-player
+                    send "" to loop-player
+                    make embed:
+                        set title of embed to "Жалоба"
+                        set author icon of embed to "https://media.discordapp.net/attachments/1115210329195032646/1119580866134413402/photo1686557434.jpeg?width=662&height=6621"
+                        set embed color of the embed to red
+                        add inline field named "От игрока" with value "%player%" to fields of embed
+                        add inline field named "На игрока" with value "%player-arg%" to fields of embed
+                        add inline field named "Причина" with value "%arg-2%" to fields of embed
+                        set footer of embed to "oldiberezko"
+                        set timestamp of embed to now
+                    post last embed to text channel with id "{@reportlog}"
 
 command /sf [<text>] [<player>]:
     permission: bzsf.sf
     permission message: {@noprm}
     trigger:
-        if player-arg is not set:
+        if player-arg or arg-2 or arg-1 is not set:
             send "{@prefix} &fИспользуйте &6/sf &7ДС &7ИГРОК " to player
             stop
-        if arg-2 is not set:
-            send "{@prefix} &fИспользуйте &6/sf &7ДС &7ИГРОК" to player
-            stop
-        if arg-1 is not set:
-            send "{@prefix}  &fИспользуйте &6/sf &7ДС &7ИГРОК" to player
-            stop
-        if player-arg is player:
-            send "{@prefix}  &fИспользуйте &6/sf &7ДС &7ИГРОК}" to player
-            stop
+        if player-arg or arg-1 or arg-1 is player:
+            send "{@prefix} &fИспользуйте &6/sf &7ДС &7ИГРОК " to player
+            stop    
         else: 
             send title "&6%arg-1%" with subtitle "Напишите модератору в DS или вы будете забанены" to player-arg for 99999  seconds
             set player-arg's walk speed to 0
@@ -339,7 +343,7 @@ on join:
 
 
 command /unsf [<player>]:
-    permission: OP
+    permission: bzsf.unsf
     permission message: {@noprm}
     trigger:
         if player-arg is not set:
@@ -362,12 +366,105 @@ command /unban [<offline player>]:
             unban arg-1
             send "{@prefix} %arg-1% &6разбанен"
 
+
+command /sban [<offline player>] [<text>]:
+    permission: bzsf.sban
+    permission message: {@noprm}
+    trigger:
+        if arg-1 or arg-2 is not set:
+            send "{@prefix} &fИспользуйте &6/sban &7ИГРОК ПРИЧИНА"
+            stop
+        if arg-1 or arg-2 is player:
+            send "{@prefix} &fИспользуйте &6/sban &7ИГРОК ПРИЧИНА"
+            stop
+        if arg-2 is set:
+            ban arg-1 due to "{@servername} Вы были заблокированы по причине %arg-2%"
+            ip ban arg-1 due to "{@servername} Вы были заблокированы по причине %arg-2%"
+            send "{@prefix} Игрок %arg-1% Был заблокирован по причине %arg-2%"
+            loop all players:
+                send "" to loop-players
+                send "{@servername} &f Модератор &9&l%player%&f Заблокировал &a&l%arg-1%&f по причине &a&l%arg-2%&f" to loop-players
+                send "{@servername} &fЧитайте правила, чтобы не повторить судьбу этого игрока" to loop-players
+                send "" to loop-players
+            stop
+
+
+command /smute [<player>] [<text>] [<time span>]: # Пока в разработке, сложный алгорим.
+    permission: bzsf.mute
+    permission message: {@noprm}
+    trigger:
+        if player-arg or arg-1 is not set:
+            send "{@prefix} &fИспользуйте &6/smute &7ИГРОК ПРИЧИНА"
+            stop
+        if player-arg or arg-2 or arg-1 is player:
+            send "{@prefix} Вы не можете замутить себя"
+            stop
+        if {playermuted::%player-arg%} is true:
+            set {playermuted::%player-arg%} to false
+            send "{@prefix} &fВы размутили игрока %player-arg%"
+            stop
+        if player-arg or arg-1 or arg-1 is set:
+            set {playermuted::%player-arg%} to true
+            set {_player} to player-arg
+            set {_reason} to arg-2
+            send "{@prefix} &fВы замутили игрока &a&L%player-arg%&f по причине &a&l%arg-1%&f"
+            stop
+            
+command /tp [<player>]:
+    permission: bzsf.tp
+    permission message: {@noprm}
+    trigger:
+        if player-arg is not set:
+            send "{@prefix} Используйте &6/tp&7 ИГРОК"
+        if player-arg is set:
+            if player-arg is online:
+                teleport the player to player-arg
+
+command /tpall: # Тп всех к себе
+    permission: bzsf.tpall
+    permission message: {@noprm}
+    trigger:
+        loop all players:
+            teleport the loop-players to player
+
+command /fly:
+    permission: bzsf.fly
+    permission message: {@noprm}
+    trigger:
+        if {fly::%player%} is false:
+            set {fly::%player%} to true
+            set player's flight mode to true
+            send "{@prefix} Режим полета &aвключен" to player
+            stop
+        if {fly::%player%} is true:
+            set {fly::%player%} to false
+            set player's flight mode to false
+            send "{@prefix} Режим полета &cотключен" to player
+            stop
+            
+                
+
+on chat:    
+    if {playermuted::%player%} is true:
+        send "{@prefix} &fВы получили мут " to player
+        cancel event
+
+command /sip [<offline player>]:
+    permission:  bzsf.ipcheck
+    permission message: {@noprm}
+    trigger:
+        if arg-1 is not set:
+            send "{@prefix} &fУкажите ник игрока которого хотите узнать айпи"
+        if arg-1 is set:
+            send "{@prefix} &fИспользуется %arg-1% - &c%arg's ip%"
+            stop
+
 command /staffchat [<text>]:
     permission: bzsf.staffchat
     permission message: {@noprm}
     trigger:
         if arg-1 is not set:
-            send "{@prefix} &fИспользуйте /staffchat &0- &6ON &fИли &cOFF " to player
+            send "{@prefix} &fИспользуйте &6/staffchat &0- &6ON &fИли &cOFF " to player
         if arg-1 is "on":
             set {staffchat.%player%} to true
             send "{@prefix} &fВключен стафф чат" to player
@@ -404,7 +501,6 @@ on connect:
             wait 1 second
             send " {@prefix} &fНа сервере включен режим тех работ" to player
 
-#             kick player by reason of "&fСервер находится на &cтeх работах&f,зайдите позже"
 #
 # ИВЕНТЫ
 #
@@ -414,7 +510,7 @@ on chat:
         loop all players:
             if loop-players has permission "bzsf.staffchat":
                 send "&0&l[&1*&0&l]&7%player%: &7%message%" to loop-player
-#
+# 
 # КОМАНДЫ
 # 
 command /sc [<text>]:
@@ -425,9 +521,9 @@ command /sc [<text>]:
             send "{@prefix} &fИспользуйте команду &6/sc &7текст"
             stop
         else:
-        loop all players:
-            if loop-player has permission "bzsf.sc":
-                send "&0&l[&1*&0&l]&7%player%: &7%arg-1%" to loop-player
+            loop all players:
+                if loop-player has permission "bzsf.sc":
+                    send "&0&l[&1*&0&l]&7%player%: &7%arg-1%" to loop-player
 
 command /vanish:
     aliases: v
@@ -451,7 +547,7 @@ command /inv [<player>]:
     permission message: {@noprm}
     trigger:
         if player-arg is not set:
-            send "{@prefix} &fИспользуйте /inv &7ИГРОК"
+            send "{@prefix} &fИспользуйте &6/inv &7ИГРОК"
             stop
         if player-arg is set:
             open the player-arg's inventory for the player
@@ -571,7 +667,7 @@ on quit:
     delete {schat}
     set {tday} to true
     set {sschat} to true
-every 1 second:
+every second:
     loop all players:
         if {startedtimer} is set:
             add 1 to {seconds}
@@ -592,5 +688,5 @@ every second:
 
 
 on server list ping:
-    hide {vanishh::*} from the server list
-
+    loop all players:
+        hide {vanishh::%loop-players%} from the server list
